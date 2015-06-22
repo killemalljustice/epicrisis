@@ -1,0 +1,45 @@
+<!-- START BLOCK : TITULO -->
+<CENTER>{NUMERO_RESULTADOS}&nbsp; &nbsp;<a href='crea_excel.php?{PARAMETROS}' target="_blank" style='align:right;'>Descargar Resultados</a></CENTER> 
+<table width='100%' border='1' style='border-collapse: collapse' cellpadding='0' cellspacing='0'>
+<tr bgcolor='#CCCCCC'>
+<td align=center style='width:80px;'><font style='font-size:8pt;' face='Verdana, Arial, Helvetica, sans-serif' color=#000000><b>RUT o DNI</b></font></strong></td>
+			<td align=center><font style='font-size:8pt;' face='Verdana, Arial, Helvetica, sans-serif' color=#000000><b>Paciente</b></font></strong></td>
+			<td align=center><font style='font-size:8pt;' face='Verdana, Arial, Helvetica, sans-serif' color=#000000><b>Medico</b></font></strong></td>
+			<td align=center style='width:70px;'><font style='font-size:8pt;' face='Verdana, Arial, Helvetica, sans-serif' color=#000000><b>Fecha Egre</b></font></strong></td>
+			<td align=center style='width:50px;'><font style='font-size:8pt;' face='Verdana, Arial, Helvetica, sans-serif' color=#000000><b>Editar</b></font></strong></td>
+			<td align=center style='width:50px;'><font style='font-size:8pt;' face='Verdana, Arial, Helvetica, sans-serif' color=#000000><b>Impr</b></font></strong></td>
+			<td align=center ><font style='font-size:8pt;' face='Verdana, Arial, Helvetica, sans-serif' color=#000000><b>Prot</b></font></strong></td>
+</tr>
+<!-- END BLOCK : TITULO -->
+
+<!-- START BLOCK : FILAS -->
+			<tr style='font-size:10pt;'><td>{RUT}</td><td>{PACIENTE}</td><td>{CIRUJANO}</td><td>{FECHA_EGRE}</td><td>{EDITAR}</td><td><center><a href='crea_pdf_epicrisis.php?id_epicrisis={ID_EPICRISIS}' target="_blank"><img src='imagenes/imprimir.png' width='20'  style='border:0px;'></a></center></td><td><center>{PROTOCOLOS}</center></td></tr>
+<!-- END BLOCK : FILAS -->
+
+<!-- START BLOCK : PAGINACION -->
+<div class="pagination"><ul>
+<input type='hidden' id='tipo_pag' value='{VALOR_TIPO}'>
+<!-- START BLOCK : ANTERIOR -->
+<li><a class="paginate" data="{NUMERO}">Anterior</a></li>
+<!-- END BLOCK : ANTERIOR -->
+
+<!-- START BLOCK : SINCONENLACE -->
+<li {CONTENIDO}><a {CONTENIDO2}>{NUMERO2}</a></li>
+<!-- END BLOCK : SINCONENLACE -->
+
+
+<!-- START BLOCK : SINENLACE -->
+<li class="active"><a>{NUMERO2}</a></li>
+<!-- END BLOCK : SINENLACE -->
+	
+<!-- START BLOCK : CONENLACE -->
+<li><a class="paginate" data="{NUMERO3}">{NUMERO3}</a></li>
+<!-- END BLOCK : CONENLACE -->
+
+<!-- START BLOCK : SIGUIENTE -->
+<li><a class="paginate" data="{NUMERO4}">Siguiente</a></li>
+<!-- END BLOCK : SIGUIENTE -->
+
+</ul></div>
+<!-- END BLOCK : PAGINACION -->
+</table>

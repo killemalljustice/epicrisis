@@ -1,0 +1,927 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+ <head>
+  <link rel="shortcut icon" href="imagenes/ficha.jpg" />
+  <title>Epicrisis</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="Generator" content="EditPlus">
+  <meta name="Author" content="">
+  <meta name="Keywords" content="">
+  <meta name="Description" content="">
+
+ 
+	<script type="text/javascript" src="js/sh/shCore.js"></script>
+	<script type="text/javascript" src="js/sh/shBrushJScript.js"></script>
+	<link type="text/css" rel="stylesheet" href="js/sh/shCore.css"/>
+	<link type="text/css" rel="stylesheet" href="js/sh/shThemeDefault.css"/>
+
+
+
+  <link rel="stylesheet" href="css/estilo.css" type="text/css">
+  <!-- Estilo del tooltip -->
+ <link rel="stylesheet" href="css/general_style.css" type="text/css">
+ 
+
+  <link rel="stylesheet" type="text/css" href="jquery-popup/style.css" />
+  <script type="text/javascript" src="jquery-popup/popup.js"></script>
+  <script type="text/javascript" src="js/jquery-1.6.1.js"></script>
+    <script type="text/javascript" src="js/rut.js"></script>
+	<script type="text/javascript" src="js/nuevo_rut.js"></script>
+	<script type="text/javascript" src="js/jquery.Rut.js"></script>
+<script type="text/javascript" src="jquery-popup/popup.js"></script>
+
+<script type="text/javascript" src="js/jquery.searchabledropdown-1.0.8.min.js"></script>
+
+<link href="css/jquery-ui-1.8.12.custom.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="js/jquery/ui/jquery-ui-1.8.12.custom.js"></script>
+<script>
+	$(function() {
+		//$( "#datepicker" ).datepicker();
+		$('.datepicker').live('click', function(){
+			$(this).datepicker({changeMonth: 'true',changeYear: 'true',showOn:'focus'}).focus();
+		})
+	});
+</script>
+<script>
+			document.onkeydown = function() {    
+			switch (event.keyCode) { 
+				case 116 : //F5 button
+					event.returnValue = false;
+					event.keyCode = 0;
+					return false; 
+				case 82 : //R button
+					if (event.ctrlKey) { 
+						event.returnValue = false; 
+						event.keyCode = 0;  
+						return false; 
+					} 
+			}
+		}
+			$(document).ready(function () {
+				$('.editable').searchable();
+				$('#rut').bind("cut copy paste",function(e) {
+					  e.preventDefault();
+				  });
+				 $('#rut').bind("contextmenu",function(e){ e.preventDefault(); });
+
+				
+			});
+			$(document).keydown(function(e){
+
+				if ( e.keyCode == 8 && e.target.tagName != 'INPUT' && e.target.tagName != 'TEXTAREA') {
+					e.preventDefault();
+				}
+			});
+		</script>
+<script src="js/jquery/ui/i18n/jquery.ui.datepicker-es.js"></script>
+<script type="text/javascript" src="js/jquery/ui/jquery.ui.datepicker.js"></script>
+
+
+  <script type="text/javascript">
+  
+function formato_rut(rut){
+	rut_dni=$('#rut_dni').val();
+	rut2=$('#rut').val();
+	if(rut.value.length==8)
+		rut.value='0'+rut.value;
+	
+
+	existe=1;
+	if(rut2.indexOf('-') === -1)
+		existe=0;
+	if (rut_dni==1 && existe==0)
+	{
+		var sRut1 = rut.value;      //contador de para saber cuando insertar el . o la -
+		var nPos = 0; //Guarda el rut invertido con los puntos y el guión agregado
+		var sInvertido = ""; //Guarda el resultado final del rut como debe ser
+		var sRut = "";
+		for(var i = sRut1.length - 1; i >= 0; i-- )
+		{
+			sInvertido += sRut1.charAt(i);
+			if (i == sRut1.length - 1 )
+				sInvertido += "-";
+			else if (nPos == 3)
+			{
+				sInvertido += ".";
+				nPos = 0;
+			}
+			nPos++;
+		}
+		for(var j = sInvertido.length - 1; j >= 0; j-- )
+		{
+			if (sInvertido.charAt(sInvertido.length - 1) != ".")
+				sRut += sInvertido.charAt(j);
+			else if (j != sInvertido.length - 1 )
+				sRut += sInvertido.charAt(j);
+		}
+		//rut.value = sRut.toUpperCase();
+	}
+
+	var rut_completo=sRut.toString();
+	sin_puntos=rut_completo.replace(/[.]/g,'');
+	
+	sin_cero = sin_puntos
+
+	while(sin_cero.charAt(0) === '0')
+		sin_cero = sin_cero.substr(1);
+
+	rut.value = sin_cero
+
+	$("#nombre").prop('disabled', true);
+	$("#ficha").prop('disabled', true);
+	$("#edad").prop('disabled', true);
+	$.ajax({
+		type: "POST",
+		url: "busca_datos_paciente.php",
+		data: "rut="+sin_puntos,
+		success: function(datos){
+			$("#nombre").val(datos[0]+" "+datos[1]+" "+datos[2]);
+			$("#ficha").val(datos[3]);
+			$("#edad").val(datos[4]);
+			$("#nombre").prop('disabled', false);
+			$("#ficha").prop('disabled', false);
+			$("#edad").prop('disabled', false);
+			$("#nombre").focus();
+		},
+		error: function(XMLHttpRequest, textStatus, errorThrown) { 
+			$("#nombre").prop('disabled', false);
+			$("#ficha").prop('disabled', false);
+			$("#edad").prop('disabled', false);
+			$("#nombre").focus();
+        } 
+	});
+	
+    
+}
+function formato_rut_medico(rut){
+		rut2=$('#rut_medico').val();
+	if(rut.value.length==8)
+		rut.value='0'+rut.value;
+	
+
+	existe=1;
+	if(rut2.indexOf('-') === -1)
+		existe=0;
+	if (existe==0)
+	{
+		var sRut1 = rut.value;      //contador de para saber cuando insertar el . o la -
+		var nPos = 0; //Guarda el rut invertido con los puntos y el guión agregado
+		var sInvertido = ""; //Guarda el resultado final del rut como debe ser
+		var sRut = "";
+		for(var i = sRut1.length - 1; i >= 0; i-- )
+		{
+			sInvertido += sRut1.charAt(i);
+			if (i == sRut1.length - 1 )
+				sInvertido += "-";
+			else if (nPos == 3)
+			{
+				sInvertido += ".";
+				nPos = 0;
+			}
+			nPos++;
+		}
+		for(var j = sInvertido.length - 1; j >= 0; j-- )
+		{
+			if (sInvertido.charAt(sInvertido.length - 1) != ".")
+				sRut += sInvertido.charAt(j);
+			else if (j != sInvertido.length - 1 )
+				sRut += sInvertido.charAt(j);
+		}
+		//rut.value = sRut.toUpperCase();
+		var rut_completo=sRut.toString();
+		sin_puntos=rut_completo.replace(/[.]/g,'');
+		
+		sin_cero = sin_puntos
+
+		while(sin_cero.charAt(0) === '0')
+			sin_cero = sin_cero.substr(1);
+
+		rut.value = sin_cero
+	} 
+}
+function calcula_dif(){
+	peso_nac=$('#peso_nac').val();
+	peso_alta=$('#peso_alta').val();
+	$('#dif_peso').val(peso_alta-peso_nac);
+	//alert(peso_nac+" "+peso_alta);
+}
+function calcula_dif_fechas(){
+	fecha_ingreso=$('#fecha_ingreso').val();
+	fecha_ing=fecha_ingreso.split("/");
+	fecha_egreso=$('#fecha_egreso').val();
+	fecha_egr=fecha_egreso.split("/");
+
+	var dat1 = new Date(fecha_ing[2], parseFloat(fecha_ing[1])-1, parseFloat(fecha_ing[0]));
+	var dat2 = new Date(fecha_egr[2], parseFloat(fecha_egr[1])-1, parseFloat(fecha_egr[0]));
+ 
+	var fin = dat2.getTime() - dat1.getTime();
+	var dias = Math.floor(fin / (1000 * 60 * 60 * 24))  
+
+	if(dias==0)
+		dias=1;
+	$('#dias_estadia_neo').val(dias);
+	$('#dias_estadia').val(dias);
+	//alert( dias);
+
+	//alert(difDias(fecha_ing[0],fecha_ing[1],fecha_ing[2],fecha_egr[0],fecha_egr[1],fecha_egr[2]));
+}
+function busca_datos_ultima_epicrisis(){
+	$('#boton_busca').html("<center><img src='imagenes/lightbox-ico-loading.gif'></center>");
+	rut=$('#rut').val();
+	if(rut==''){
+		alert("Debe ingresar el RUT!");
+		$('#boton_busca').html("<input type='button' value='Cargar Datos Ultima Epicrisis' onclick='busca_datos_ultima_epicrisis();'>");
+	}else{
+		$.ajax({
+			type: "POST",
+			url: "busca_datos_ultima_epicrisis.php",
+			data: "rut="+rut,
+			success: function(datos){
+				$("#nombre").val(datos[0]);
+				$("#ficha").val(datos[1]);
+				$("#edad").val(datos[2]);
+				$("#egreso").val(datos[3]);
+				$("#egreso2").val(datos[4]);
+				$("#reposo").val(datos[5]);
+				$("#resumen").val(datos[6]);
+				$("#otras_indicaciones").val(datos[7]);
+				$("#cirugias").val(datos[8]);
+				$("#peso_ingreso").val(datos[9]);
+				$("#peso_egreso").val(datos[10]);
+				$("#sexo").val(datos[11]);
+				$("#nombre_padre").val(datos[12]);
+				$("#escol_padre").val(datos[13]);
+				$("#nombre_madre").val(datos[14]);
+				$("#escol_madre").val(datos[15]);
+				$("#direccion").val(datos[16]);
+				$("#fono").val(datos[17]);
+				$("#parto").val(datos[18]);
+				$("#apgar").val(datos[19]);
+				$("#gr_mat").val(datos[20]);
+				$("#gr_rn").val(datos[21]);
+				$("#fecha_bgc").val(datos[22]);
+				$("#fecha_pku").val(datos[23]);
+				$("#fecha_nac").val(datos[24]);
+				$("#peso_nac").val(datos[25]);
+				$("#tipo_edad").val(datos[28]);
+				$('#boton_busca').html("<input type='button' value='Cargar Datos Ultima Epicrisis' onclick='busca_datos_ultima_epicrisis();'> Datos obtenidos de epicrisis con fecha "+datos[26]+","+datos[27]);
+			}
+		});
+	}
+}
+function carga_habitaciones(){
+	tipo_habitacion=$('#tipo_habitacion').val();
+
+	reposo=$('#reposo').val();
+	regimen=$('#regimen').val();
+	otras_indicaciones=$('#otras_indicaciones').val();
+
+	if(tipo_habitacion!=7){
+		$('#habitaciones').html("<center><img src='imagenes/lightbox-ico-loading.gif'></center>");
+		$.ajax({
+				type: "POST",
+				url: "busca_habitaciones.php",
+				data: "tipo_habitacion="+tipo_habitacion,
+				success: function(datos){
+					$('#habitaciones').html(datos);
+				}
+			});
+		if(tipo_habitacion=='8'){
+
+			$('#pediatria').html("<b>Peso Ingreso(*)&nbsp;</b><input type='text' id='peso_ingreso' style='width:70px;'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Peso Egreso(*)&nbsp;</b><input type='text' id='peso_egreso' style='width:70px;'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Sexo (*)&nbsp;</b><select id='sexo'><option value='1'>Masculino</option><option value='2'>Femenino</option></select><br><br>");
+
+			$('#pediatria2').html("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Dias Estadia(*)&nbsp;</b><input type='text' id='dias_estadia' style='width:70px;' READONLY>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Estadía UCI(*)&nbsp;</b><input type='text' id='estadia_uci' style='width:70px;' onkeypress='return event.charCode >= 48 && event.charCode <= 57'><br><br><span id='boton_busca'><input type='button' value='Cargar Datos Ultima Epicrisis' onclick='busca_datos_ultima_epicrisis();'></span>");
+
+			$('#indicaciones_especiales').html("<table border='1' style='border-collapse: collapse' cellpadding='0' cellspacing='0'><tr><td colspan='2'><center><b>INDICACIONES DE ALTA(*)</b></center></td></tr><tr><td><center><b>Reposo</b></center></td><td><center><b>Regimen</b></center></td></tr><tr><td><textarea id='reposo_ped' rows='3'  style='width: 330px;'></textarea></td><td><textarea id='regimen_ped' rows='3' style='width: 330px;'></textarea></td></tr> </table> <table border='1' style='border-collapse: collapse' cellpadding='0' cellspacing='0'><tr><td colspan='2'><center><b>OTRAS INDICACIONES</center></td></tr><tr><td><textarea id='reposo' rows='3'  style='width: 670px;'></textarea></td></tr><tr><td ><center><b>IIH</b></center></td></tr><tr><td ><textarea id='otras_indicaciones' rows='3' style='width: 670px;'></textarea></td></tr></table>");	
+
+		}else if(tipo_habitacion=='9'){
+
+			$('#pediatria').html("<b>Nombre Padre&nbsp;&nbsp;</b><input type='text' id='nombre_padre' style='width:250px;' >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Escolaridad Padre&nbsp;&nbsp;</b><input type='text' id='escol_padre' style='width:90px;' ><br><br><b><b>Nombre Madre&nbsp;</b><input type='text' id='nombre_madre' style='width:250px;' >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Escolaridad Madre&nbsp;</b><input type='text' id='escol_madre' style='width:90px;' ><br><br><b>Dirección&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</b><input type='text' id='direccion' style='width:250px;' >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Fono&nbsp;</b><input type='text' id='fono' style='width:70px;' ><br><br><table><tr><td><b>Parto</b></td><td><input type='text' id='parto' style='width:90px;' ></td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td><b>Apgar</b></td><td><input type='text' id='apgar' style='width:90px;' ></td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td><b>GR. MAT</b></td><td><input type='text' id='gr_mat' style='width:90px;' ></td></tr><tr><td><b>GR. RN</b></td><td><input type='text' id='gr_rn' style='width:90px;' ></td><td>&nbsp;</td><td><b>Fecha BGC</b></td><td><input type='text' id='fecha_bgc' style='width:70px;' class='datepicker' READONLY></td><td>&nbsp;</td><td><b>Fecha PKU</b></td><td><input type='text' id='fecha_pku' style='width:70px;' class='datepicker' READONLY></td></tr><tr><td><b>Fecha Nac</b></td><td><input type='text' id='fecha_nac' style='width:70px;' class='datepicker' READONLY></td><td>&nbsp;</td><td><b>Peso Nac</b></td><td><input type='text' id='peso_nac' style='width:70px;' onkeyup='calcula_dif();'onkeypress='return event.charCode >= 48 && event.charCode <= 57'>(grs)</td><td>&nbsp;</td><td><b>Peso Alta</b></td><td><input type='text' id='peso_alta' style='width:70px;' onkeyup='calcula_dif();'onkeypress='return event.charCode >= 48 && event.charCode <= 57'>(grs)</td></tr><tr><td><b>Dias de Estadia</b></td><td><input type='text' id='dias_estadia_neo' style='width:30px;' READONLY></td><td>&nbsp;</td><td><b>Dif. Peso</b></td><td><input type='text' id='dif_peso' style='width:70px;' READONLY>(grs)</td><td>&nbsp;</td><td></td><td></td></tr></table><br>");
+
+			//$('#pediatria').html("<b>Nombre Padre&nbsp;&nbsp;</b><input type='text' id='nombre_padre' style='width:250px;' >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Escolaridad Padre&nbsp;&nbsp;</b><input type='text' id='escol_padre' style='width:90px;' ><br><br><b><b>Nombre Madre&nbsp;</b><input type='text' id='nombre_madre' style='width:250px;' >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Escolaridad Madre&nbsp;</b><input type='text' id='escol_madre' style='width:90px;' ><br><br><b>Dirección&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</b><input type='text' id='direccion' style='width:250px;' >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Fono&nbsp;</b><input type='text' id='fono' style='width:70px;' ><br><br><b>Parto&nbsp;&nbsp;&nbsp;&nbsp;</b><input type='text' id='parto' style='width:90px;' >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Apgar&nbsp;</b><input type='text' id='apgar' style='width:90px;' >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>GR. MAT&nbsp;</b><input type='text' id='gr_mat' style='width:90px;' ><br><br><b>GR. RN&nbsp;&nbsp;&nbsp;&nbsp;</b><input type='text' id='gr_rn' style='width:90px;' >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Fecha BGC&nbsp;</b><input type='text' id='fecha_bgc' style='width:70px;' class='datepicker' READONLY>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Fecha PKU&nbsp;</b><input type='text' id='fecha_pku' style='width:70px;' class='datepicker' READONLY><br><br><b>Fecha Nac&nbsp;&nbsp;&nbsp;&nbsp;</b><input type='text' id='fecha_nac' style='width:70px;' class='datepicker' READONLY>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Peso Nac&nbsp;</b><input type='text' id='peso_nac' style='width:70px;' onkeyup='calcula_dif();'onkeypress='return event.charCode >= 48 && event.charCode <= 57'>(grs)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Peso Alta&nbsp;</b><input type='text' id='peso_alta' style='width:70px;' onkeyup='calcula_dif();'onkeypress='return event.charCode >= 48 && event.charCode <= 57'>(grs)<br><br><b>Dias de Estadia&nbsp;&nbsp;&nbsp;&nbsp;</b><input type='text' id='dias_estadia_neo' style='width:30px;' READONLY>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Dif. Peso&nbsp;</b><input type='text' id='dif_peso' style='width:70px;' READONLY>(grs)<br><br>");
+
+			$('#pediatria2').html("<br><br><span id='boton_busca'><input type='button' value='Cargar Datos Ultima Epicrisis' onclick='busca_datos_ultima_epicrisis();'></span>");
+			$('#etiqueta_edad').html("Edad Gest");
+			$('#tipo_edad').val(5);
+			$('#indicaciones_especiales').html("<table border='1' style='border-collapse: collapse' cellpadding='0' cellspacing='0'><tr><td colspan='2'><center><b>INDICACIONES DE ALTA(*)</b></center></td></tr><tr><td><textarea id='reposo' rows='3'  style='width: 670px;'></textarea></td></tr><tr><td ><center><b>IIH</b></center></td></tr><tr><td ><textarea id='otras_indicaciones' rows='3' style='width: 670px;'></textarea></td></tr></table>");			
+			//$('#pediatria2').html("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Dias Estadia(*)&nbsp;</b><input type='text' id='dias_estadia' style='width:70px;' >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Estadía UCI(*)&nbsp;</b><input type='text' id='estadia_uci' style='width:70px;' ><br><br>");
+		}else{
+			$('#pediatria').html("");
+			$('#pediatria2').html("");
+			$('#etiqueta_edad').html("Edad(*)");
+			$('#tipo_edad').val(1);
+			$('#indicaciones_especiales').html("<table border='1' style='border-collapse: collapse' cellpadding='0' cellspacing='0'><tr><td colspan='2'><center><b>INDICACIONES DE ALTA(*)</b></center></td></tr><tr><td><center><b>Reposo</b></center></td><td><center><b>Regimen</b></center></td></tr><tr><td><textarea id='reposo' rows='3'  style='width: 330px;' >"+reposo+"</textarea></td><td><textarea id='regimen' rows='3' style='width: 330px;'>"+regimen+"</textarea></td></tr>	<tr><td colspan='2'><center><b>OTRAS INDICACIONES</b></center></td></tr><tr><td colspan='2'><textarea id='otras_indicaciones' rows='3' style='width: 670px;'>"+otras_indicaciones+"</textarea></td></tr></table>");
+		}
+		//$('#cirugias').html("<table border='1' style='border-collapse: collapse' cellpadding='0' cellspacing='0'><tr><td ><center><b>CIRUGIA(S) Y/O INTERVENCIONES REALIZADA(S)</b></center></td></tr><tr><td ><textarea id='cirugias' rows='10' style='width: 665px;'></textarea></td></tr></table><br><br>");
+	}else{
+		$('#habitaciones').html("");
+		$('#cirugias').html("");
+	}
+}
+function llena_tabla(){
+	id_medicamento=$('#medicamento_arsenal').val();
+	medicamento=$("#medicamento_arsenal option:selected").text();
+	dosis=$('#dosis_arsenal').val();
+	frecuencia=$('#frecuencia_arsenal').val();
+	duracion=$('#duracion_arsenal').val();
+	via=$('#via_arsenal').val();
+	if($.trim($("#medicamento_arsenal").val()).length == 0){
+		alert("Debe ingresar el nombre del medicamento!");
+		return false;
+	}else if($.trim($("#dosis_arsenal").val()).length == 0){
+		alert("Debe ingresar la dosis del medicamento!");
+		return false;
+	}else if($.trim($("#frecuencia_arsenal").val()) == 'cada'){
+		alert("Debe ingresar la frecuencia del medicamento!");
+		return false;
+	}else if($.trim($("#duracion_arsenal").val()) == 'por'){
+		alert("Debe ingresar la duracion del tratamiento!");
+		return false;
+	}else if($.trim($("#via_arsenal").val()).length == 0){
+		alert("Debe ingresar la via de administración!");
+		return false;
+	}else if($("#medicamento_arsenal").val() == 0){
+		alert("Debe seleccionar un medicamento!");
+		return false;
+	}
+	$('#listado_arsenal').append('<tr><td>'+id_medicamento+'</td><td>'+medicamento+'</td><td>'+dosis+'</td><td>'+frecuencia+'</td><td>'+duracion+'</td><td>'+via+'</td><td><center><img class="btnDelete" src="imagenes/Button-Delete-icon.png" width="20"></center></td></tr>');
+	$(".btnDelete").bind("click", Delete);
+	$('#medicamento_arsenal').val('');
+	$('#dosis_arsenal').val('');
+	$('#frecuencia_arsenal').val('cada ');
+	$('#duracion_arsenal').val('por ');
+	$('#via_arsenal').val('');
+}
+function llena_tabla2(){
+	medicamento=$('#medicamento').val();
+	dosis=$('#dosis').val();
+	frecuencia=$('#frecuencia').val();
+	duracion=$('#duracion').val();
+	via=$('#via').val();
+	if($.trim($("#medicamento").val()).length == 0){
+		alert("Debe ingresar el nombre del medicamento!");
+		return false;
+	}else if($.trim($("#dosis").val()).length == 0){
+		alert("Debe ingresar la dosis del medicamento!");
+		return false;
+	}else if($.trim($("#frecuencia").val()) == 'cada'){
+		alert("Debe ingresar la frecuencia del medicamento!");
+		return false;
+	}else if($.trim($("#duracion").val()) == 'por'){
+		alert("Debe ingresar la duracion del tratamiento!");
+		return false;
+	}else if($.trim($("#via").val()).length == 0){
+		alert("Debe ingresar la via de administración!");
+		return false;
+	}
+	$('#listado').append('<tr><td>'+medicamento+'</td><td>'+dosis+'</td><td>'+frecuencia+'</td><td>'+duracion+'</td><td>'+via+'</td><td><center><img class="btnDelete" src="imagenes/Button-Delete-icon.png" width="20"></center></td></tr>');
+	$(".btnDelete").bind("click", Delete);
+	$('#medicamento').val('');
+	$('#dosis').val('');
+	$('#frecuencia').val('cada ');
+	$('#duracion').val('por ');
+	$('#via').val('');
+}
+function llena_tabla_citaciones(){
+	lugar=$('#lugar').val();
+	fecha=$('#fecha').val();
+	if($.trim($("#lugar").val()).length == 0){
+		alert("Debe ingresar el lugar de la citación!");
+		return false;
+	}else if($.trim($("#fecha").val()).length == 0){
+		alert("Debe ingresar la fecha estimada de la citación!");
+		return false;
+	}
+	$('#listado_citaciones').append('<tr><td>'+lugar+'</td><td>'+fecha+'</td><td><center><img class="btnDelete" src="imagenes/Button-Delete-icon.png" width="20"></center></td></tr>');
+	$(".btnDelete").bind("click", Delete);
+	$('#lugar').val('');
+	$('#fecha').val('');
+}
+function Delete(){
+    var par = $(this).parent().parent().parent(); //tr
+    par.remove();
+}
+function guarda_epicrisis(){
+	fecha_ingreso=$('#fecha_ingreso').val();
+	var res = fecha_ingreso.split("/");
+	fecha_ingreso=res[2]+"-"+res[1]+"-"+res[0];
+	fecha_egreso=$('#fecha_egreso').val();
+	var res = fecha_egreso.split("/");
+	fecha_egreso=res[2]+"-"+res[1]+"-"+res[0];
+
+	rut=$('#rut').val();
+	rut_medico=$('#rut_medico').val();
+	if($.trim($("#nombre").val()).length == 0){
+		alert("Debe ingresar el nombre del paciente!");
+		return false;
+	}else if($.trim($("#ficha").val()).length == 0 && $('#tipo_habitacion').val()!=9){
+		alert("Debe ingresar el numero de ficha!");
+		return false;
+	}else if($.trim($("#rut").val()).length == 0 && $('#tipo_habitacion').val()!=9){
+		alert("Debe ingresar el rut o dni del paciente!");
+		return false;
+	}else if($("#tipo_habitacion").val()== '0'){
+		alert("Debe seleccionar una ubicación!");
+		return false;
+	}else if($("#habitacion").val()== '0'){
+		alert("Debe seleccionar una habitación!");
+		return false;
+	}else if($("#ambito").val()== '0'){
+		alert("Debe seleccionar un ambito!");
+		return false;
+	}else if($.trim($("#fecha_ingreso").val()).length == 0){
+		alert("Debe ingresar la fecha de ingreso!");
+		return false;
+	}else if($.trim($("#fecha_egreso").val()).length == 0){
+		alert("Debe ingresar la fecha de egreso!");
+		return false;
+	}else if(fecha_ingreso>fecha_egreso){
+		alert("La fecha de ingreso no puede ser menor que la fecha de egreso!");
+		return false;
+	}else if($.trim($("#edad").val()).length == 0){
+		alert("Debe ingresar la edad del paciente!");
+		return false;
+	}else if($("#id_cirujano").val() == '0'){
+		alert("Debe seleccionar un medico!");
+		return false;
+	}else if($.trim($("#rut_medico").val()).length == 0){
+		alert("Debe ingresar el rut del medico!");
+		return false;
+	}else if($.trim($("#egreso").val()).length == 0){
+		alert("Debe ingresar el diagnostico de egreso!");
+		return false;
+	}else if($.trim($("#resumen").val()).length == 0){
+		alert("Debe ingresar el resumen de hospitalización!");
+		return false;
+	}else if($.trim($("#reposo").val()).length == 0 && $('#tipo_habitacion').val()!=8 ){
+		if( $('#tipo_habitacion').val()==9){
+			alert("Debe ingresar las indicaciones de alta!");
+		}else{
+			alert("Debe ingresar las indicaciones de reposo!");
+		}
+		return false;
+	}else if($.trim($("#regimen").val()).length == 0 && $('#tipo_habitacion').val()!=8 && $('#tipo_habitacion').val()!=9){
+		alert("Debe ingresar las indicaciones de regimen!");
+		return false;
+	}
+	
+	if($('#tipo_habitacion').val()==8 && $.trim($("#reposo_ped").val()).length == 0){
+		alert("Debe ingresar las indicaciones de reposo!");
+		return false;
+	}
+
+	if($('#tipo_habitacion').val()==8 && $.trim($("#regimen_ped").val()).length == 0){
+		alert("Debe ingresar las indicaciones de regimen!");
+		return false;
+	}
+
+	if($("#rut_dni").val()=='1' && $('#tipo_habitacion').val()!=9){
+			if(!Rut(rut)){
+				alert("El RUT del paciente no es valido!");
+				return false;
+			}
+	}
+	if(!Rut(rut_medico)){
+				alert("El RUT del medico no es valido!");
+				return false;
+	}
+	var data = new FormData();
+	 i=0;
+	 medicamentos_arsenal="";
+	$('#listado_arsenal tr').each(function(){
+		if(i>0){
+			j=1;
+			$(this).find('td').each(function(){
+					if(j!=2 && j!=7){
+						texto_actual=$(this).text();
+						medicamentos_arsenal+="&med_ars"+i+j+"="+texto_actual;
+						data.append("med_ars"+i+j,texto_actual);	
+					}
+				j++;
+			})
+		}
+		i++;
+	})
+	nro_medicamentos_arsenal=i-1;
+	
+	i=0;
+	medicamentos="";
+	$('#listado tr').each(function(){
+		if(i>0){
+			j=1;
+			$(this).find('td').each(function(){
+					if(j!=6){
+						texto_actual=$(this).text();
+						medicamentos+="&med"+i+j+"="+texto_actual;
+						data.append("med"+i+j,texto_actual);	
+					}
+				j++;
+			})
+		}
+		i++;
+	})
+	nro_medicamentos=i-1;
+	
+	i=0;
+	citaciones="";
+	$('#listado_citaciones tr').each(function(){
+		if(i>0){
+			j=1;
+			$(this).find('td').each(function(){
+					if(j!=3){
+						texto_actual=$(this).text();
+						citaciones+="&cit"+i+j+"="+texto_actual;
+						data.append("cit"+i+j,texto_actual);	
+					}
+				j++;
+			})
+		}
+		i++;
+	})
+	nro_citaciones=i-1;
+
+
+	//alert(citaciones);
+	//alert(nro_citaciones);
+	
+	if(i==1 && $('#tipo_habitacion').val()!=9){
+		alert("Debe ingresar a lo menos una citación!");
+		return false;
+	}
+
+	$('#boton_guardar').html("<img src='imagenes/lightbox-ico-loading.gif'>");
+	id_protocolo=$('#id_protocolo').val();
+	rut=$('#rut').val();
+	rut_medico=$('#rut_medico').val();
+	nombre_paciente=$('#nombre').val();
+	ficha=$('#ficha').val();
+	tipo_habitacion=$('#tipo_habitacion').val();
+	if(tipo_habitacion=='7'){
+		habitacion='124';
+		cirugias='';
+	}else{
+		habitacion=$('#habitacion').val();
+		cirugias=encodeURIComponent($('#cirugias').val());
+	}
+	
+	ambito=$('#ambito').val();
+	fecha_ingreso=$('#fecha_ingreso').val();
+	fecha_egreso=$('#fecha_egreso').val();
+	id_cirujano=$('#id_cirujano').val();
+	egreso=encodeURIComponent($('#egreso').val());
+	egreso2=encodeURIComponent($('#egreso2').val());
+	resumen=encodeURIComponent($('#resumen').val());
+
+	complicaciones=encodeURIComponent($('#complicaciones').val());
+	procedimientos=encodeURIComponent($('#procedimientos').val());
+	//indicaciones=$('#indicaciones').val();
+	
+	//alert(regimen);
+	reposo=encodeURIComponent($('#reposo').val());
+	//alert(reposo);
+	otras_indicaciones=$('#otras_indicaciones').val();
+	//alert(otras_indicaciones);
+	//lugar=$('#lugar').val();
+	//fecha=$('#fecha').val();
+	edad=$('#edad').val();
+	tipo_edad=$('#tipo_edad').val();
+	rut_dni=$('#rut_dni').val();
+	
+	if(tipo_habitacion=='8'){
+		peso_ingreso=$('#peso_ingreso').val();
+		peso_egreso=$('#peso_egreso').val();
+		dias_estadia=$('#dias_estadia').val();
+		estadia_uci=$('#estadia_uci').val();
+		sexo=$('#sexo').val();
+		regimen='';
+		regimen_ped=encodeURIComponent($('#regimen_ped').val());
+		reposo_ped=encodeURIComponent($('#reposo_ped').val());
+	}else{
+		peso_ingreso='';
+		peso_egreso='';
+		dias_estadia='';
+		estadia_uci='';
+		sexo='0';
+		regimen_ped='';
+		reposo_ped='';
+	}
+	if(tipo_habitacion=='9'){
+		nombre_padre=$('#nombre_padre').val();
+		escol_padre=$('#escol_padre').val();
+		nombre_madre=$('#nombre_madre').val();
+		escol_madre=$('#escol_madre').val();
+		direccion=$('#direccion').val();
+		fono=$('#fono').val();
+		parto=$('#parto').val();
+		apgar=$('#apgar').val();
+		gr_mat=encodeURIComponent($('#gr_mat').val());
+		gr_rn=encodeURIComponent($('#gr_rn').val());
+		fecha_bgc=$('#fecha_bgc').val();
+		fecha_pku=$('#fecha_pku').val();
+		fecha_nac=$('#fecha_nac').val();
+		peso_nac=$('#peso_nac').val();
+		peso_alta=$('#peso_alta').val();
+		dias_estadia_neo=$('#dias_estadia_neo').val();
+		dif_peso=$('#dif_peso').val();
+		regimen='';
+	}else{
+		nombre_padre='';
+		escol_padre='';
+		nombre_madre='';
+		escol_madre='';
+		direccion='';
+		fono='';
+		parto='';
+		apgar='';
+		gr_mat='';
+		gr_rn='';
+		fecha_bgc='';
+		fecha_pku='';
+		fecha_nac='';
+		peso_nac='';
+		peso_alta='';
+		dias_estadia_neo='';
+		dif_peso='';
+	}
+	if(tipo_habitacion!='8' &&tipo_habitacion!='9'){
+		regimen=encodeURIComponent($('#regimen').val());
+	}
+	$.ajax({
+			type: "POST",
+			url: "guarda_epicrisis.php",
+			data: "rut="+rut+"&nombre_paciente="+nombre_paciente+"&ficha="+ficha+"&tipo_habitacion="+tipo_habitacion+"&habitacion="+habitacion+"&ambito="+ambito+"&fecha_ingreso="+fecha_ingreso+"&fecha_egreso="+fecha_egreso+"&id_cirujano="+id_cirujano+"&egreso="+egreso+"&egreso2="+egreso2+"&resumen="+resumen+"&regimen="+regimen+"&reposo="+reposo+"&regimen_ped="+regimen_ped+"&reposo_ped="+reposo_ped+"&otras_indicaciones="+otras_indicaciones+"&id_protocolo="+id_protocolo+"&medicamentos_arsenal="+medicamentos_arsenal+"&medicamentos="+medicamentos+"&nro_medicamentos_arsenal="+nro_medicamentos_arsenal+"&nro_medicamentos="+nro_medicamentos+"&edad="+edad+"&tipo_edad="+tipo_edad+"&rut_dni="+rut_dni+"&rut_medico="+rut_medico+"&cirugias="+cirugias+"&citaciones="+citaciones+"&nro_citaciones="+nro_citaciones+"&peso_ingreso="+peso_ingreso+"&peso_egreso="+peso_egreso+"&dias_estadia="+dias_estadia+"&estadia_uci="+estadia_uci+"&sexo="+sexo+"&nombre_padre="+nombre_padre+"&escol_padre="+escol_padre+"&nombre_madre="+nombre_madre+"&escol_madre="+escol_madre+"&direccion="+direccion+"&fono="+fono+"&parto="+parto+"&apgar="+apgar+"&gr_mat="+gr_mat+"&gr_rn="+gr_rn+"&fecha_bgc="+fecha_bgc+"&fecha_pku="+fecha_pku+"&fecha_nac="+fecha_nac+"&peso_alta="+peso_alta+"&dias_estadia_neo="+dias_estadia_neo+"&dif_peso="+dif_peso+"&peso_nac="+peso_nac+"&complicaciones="+complicaciones+"&procedimientos="+procedimientos,
+			//data: data,
+			success: function(datos){
+				//alert(datos);
+				window.location.href = "buscar.php";
+			}
+		});
+}
+function CheckTime(str)
+{
+	hora=str.value
+	if (hora=='') {return}
+	if (hora.length>5) {alert("Introdujo una cadena mayor a 5 caracteres");return}
+	//if (hora.length!=5) {alert("Introducir HH:MM");return}
+	a=hora.charAt(0) //<=2
+	b=hora.charAt(1) //<4
+	c=hora.charAt(2) //:
+	d=hora.charAt(3) //<=5
+	e=hora.charAt(5) //:
+	f=hora.charAt(6) //<=5
+	if ((a==2 && b>3) || (a>2)) {alert("El valor que introdujo en la Hora no corresponde, introduzca un digito entre 00 y 23");str.focus();return}
+	if (d>5) {alert("El valor que introdujo en los minutos no corresponde, introduzca un digito entre 00 y 59");str.focus();return}
+	if (c!=':') {alert("Introduzca el caracter ':' para separar la hora, los minutos y los segundos");return}
+
+}
+function pone_puntos(){
+	if($("#hora").val().length == 2) {  
+		$("#hora").val($("#hora").val()+":");
+        return false;  
+    }
+}
+function busca_rut_medico(){
+	
+	id_cirujano=$('#id_cirujano').val();
+	$("#rut_medico").prop('disabled', true);
+	$.ajax({
+		type: "POST",
+		url: "busca_rut_medico.php",
+		data: "id_cirujano="+id_cirujano,
+		success: function(datos){
+			$('#rut_medico').val(datos);
+			$("#rut_medico").prop('disabled', false);
+		}
+	});
+}
+function aviso(){
+	ambito=$('#ambito').val();
+	tipo_habitacion=$('#tipo_habitacion').val();
+	if(ambito=='2' && tipo_habitacion!=7){
+		alert("Las epicrisis ambulatorias deben realizarse a partir del protocolo operatorio. \n\nPara esto debe ingresar al sistema de protocolos y buscar el protocolo del cual va a realizar la epicrisis (el cual ya debe estar creado).\n\nA continuacion debe hacer click en el icono bajo la columna 'Epicrisis'.\n\nEsto le llevara al formulario de creacion de la epicrisis ambulatoria con algunos datos ya escritos obtenidos a partir de la informacion del protocolo operatorio.");
+		$('#ambito').val(1);
+	}
+}
+function mensaje(){
+	alert("Se informa que a partir de ahora las epicrisis se podran editar hasta el dia del egreso.");	
+}
+function busca_cirugias(){
+	rut=$('#rut').val();
+	fecha_ingreso=$('#fecha_ingreso').val();
+	fecha_egreso=$('#fecha_egreso').val();
+	$.ajax({
+		type: "POST",
+		url: "busca_cirugias.php",
+		data: "rut="+rut+"&fecha_ingreso="+fecha_ingreso+"&fecha_egreso="+fecha_egreso,
+		success: function(datos){
+			$('#cirugias').val(datos);
+			
+		}
+	});
+}
+  </script>
+ 
+ </head>
+
+ <body id='principal'>
+ <div id="wrapper" >
+<div id="overlay" class="overlay" style="display:none;"></div>
+<div id="boxpopup" class="box">
+	<a onclick="closeOffersDialog('boxpopup');" class="boxclose"></a>
+	<div id="contenido3">
+	
+	</div>
+</div>
+</div>
+	<img id='banner' src="imagenes/banner_nuevo.png">
+	<div id="contenido2">
+		<div id="main">
+			<div id="logeo-left2">
+				<!-- <img src='imagenes/btn_home1.fw.png' onmouseover="this.src = 'imagenes/btn_home2.fw.png' " onmouseout="this.src = 'imagenes/btn_home1.fw.png'" style='border:0px;'>
+				<img src='imagenes/btn_perfil1.fw.png' onmouseover="this.src = 'imagenes/btn_perfil2.fw.png' " onmouseout="this.src = 'imagenes/btn_perfil1.fw.png'" style='border:0px;'> -->
+				
+				<a href='main.php' class="tip2"><img src='imagenes/btn_nuevo1.fw.png' onmouseover="this.src = 'imagenes/btn_nuevo2.fw.png' " onmouseout="this.src = 'imagenes/btn_nuevo1.fw.png'" style='border:0px;'><span>Nueva Epicrisis</span></a> 
+				
+				<a href='buscar.php' class="tip2"><img src='imagenes/btn_buscar1.fw.png' onmouseover="this.src = 'imagenes/btn_buscar2.fw.png' " onmouseout="this.src = 'imagenes/btn_buscar1.fw.png'" style='border:0px;'><span>Buscador (Editar/Imprimir)</span></a>
+				<!-- <a href='descarga.php' class="tip2"><img src='imagenes/btn_ayuda1.fw.png' onmouseover="this.src = 'imagenes/btn_ayuda2.fw.png' " onmouseout="this.src = 'imagenes/btn_ayuda1.fw.png'" style='border:0px;'><span>Manual de Procedimiento (Ayuda)</span></a> -->
+				<!-- <img src='imagenes/btn_reporte1.fw.png' onmouseover="this.src = 'imagenes/btn_reporte2.fw.png' " onmouseout="this.src = 'imagenes/btn_reporte1.fw.png'" style='border:0px;'> -->
+				<a href='salir.php' class="tip2"><img src='imagenes/btn_cerrar1.fw.png' onmouseover="this.src = 'imagenes/btn_cerrar2.fw.png' " onmouseout="this.src = 'imagenes/btn_cerrar1.fw.png'" style='border:0px;'><span>Cerrar Sesión</span></a>
+			</div>	
+			<div id="main2">
+			<CENTER><H2>NUEVA EPICRISIS</H2></CENTER><br>
+			<b><select id='rut_dni'><option value='1'>RUT</option><option value='2'>DNI</option></select>(*)</b><input type='text' value='{RUT}' id='rut' style='width:80px;' onblur='formato_rut(this);' onkeypress='return event.charCode >= 48 && event.charCode <= 57 || event.charCode == 107 || event.charCode == 75' onkeydown="if (event.keyCode == 13) formato_rut(this)">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Nombre Paciente(*)&nbsp;</b><input type='text' id='nombre' style='width:300px;' value='{PACIENTE}'>     <br><br>
+			<b><span id='texto_ficha'>Ficha(*)</span>&nbsp;</b><input type='text' id='ficha' style='width:100px;' onkeypress='return event.charCode >= 48 && event.charCode <= 57' value='{FICHA}'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			
+			<B>Ubicación(*) </B><select id='tipo_habitacion' onchange='carga_habitaciones();' >
+			<option value='0'>--Seleccione--</option>
+			<!-- START BLOCK : TIPO_HABITACION -->
+			<option value='{CODIGO}' {SELECCIONADO} {DESAC}>{NOMBRE}</option>
+			<!-- END BLOCK : TIPO_HABITACION -->
+			</select>
+			&nbsp;&nbsp;&nbsp;&nbsp;<div id='habitaciones' style='display:inline;'></div>
+			<br><br>
+			<div id='pediatria'></div>
+			<b>Ámbito(*) </b><select id='ambito' onchange='aviso();'><option value='0'>--Seleccione--</option><option value='1' {SELECCIONADO2}>Hospitalización</option><option value='2' {SELECCIONADO}>Ambulatorio</option></select>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+		    <b>Fecha Ingreso(*)&nbsp;</b><input type='text' id='fecha_ingreso' style='width:70px;' value='{FECHA}' class='datepicker' READONLY onchange='calcula_dif_fechas();'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			<b>Fecha Egreso(*)&nbsp;</b><input type='text' id='fecha_egreso' style='width:70px;' value='{FECHA}' class='datepicker' READONLY onchange='calcula_dif_fechas();busca_cirugias();'><br><br>
+			
+			<table>
+			<tr>
+			<td style='width:190px;'><b><span id='etiqueta_edad'>Edad(*)</span>&nbsp;</b>
+			<input type='text' id='edad' style='width:20px;' maxlength='3' onkeypress='return event.charCode >= 48 && event.charCode <= 57' value='{EDAD}'><select id='tipo_edad'>
+			<option value='1' {SEL_AN}>Años</option>
+			<option value='2' {SEL_ME}>Meses</option>
+			<option value='3' {SEL_DI}>Dias </option>
+			<option value='4' {SEL_HO}>Horas</option>
+			<option value='5' >Semanas</option>
+			</select>
+			</td>
+
+			<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+			<td>
+			<b>Nombre Medico(*)&nbsp;</b>
+			</td>
+			<td>
+			<select id='id_cirujano' onchange='busca_rut_medico();' class='editable'>
+			<option value='0'>--Seleccione--</option>
+			<!-- START BLOCK : CIRUJANO -->
+			<option value='{ID_CIRUJANO}' {SELECCIONADO}>{NOMBRE_CIRUJANO}</option>
+			<!-- END BLOCK : CIRUJANO -->
+			</select>
+			</td>
+			</tr>
+			</table>
+			
+			<br>
+			<b>RUT Medico(*)&nbsp;</b><input type='text' id='rut_medico' style='width:80px;' onblur='formato_rut_medico(this);' onkeypress='return event.charCode >= 48 && event.charCode <= 57 || event.charCode == 107 || event.charCode == 75' onkeydown="if (event.keyCode == 13) formato_rut_medico(this)" value='{RUT_MEDICO}'>
+			<span id='pediatria2'></span>
+
+			
+			<br><br>
+			<table border='1' style='border-collapse: collapse' cellpadding='0' cellspacing='0'>
+			<tr><td colspan='2'><center><b>DIAGNÓSTICO DE EGRESO(*)</b></center></td></tr>
+
+			<tr><td><center><b>Principal</b></center></td><td><center><b>Otros Diagnósticos</b></center></td></tr>
+			<tr><td><textarea id="egreso" rows="3"  style="width: 330px;">{EGRESO}</textarea></td><td><textarea id="egreso2" rows="3" style="width: 330px;"></textarea></td></tr>
+			</table>
+			<br><br>
+			<b>Diagnóstico Principal:</b> <font color='red'>Se define como la afección diagnóstica al final del proceso de atención de la salud cómo causante primaria de la necesidad de tratamiento o investigación que tuvo el paciente. Si hay más de una afección asi caracterizada, debe seleccionarse la que se considera causante del mayor uso de recursos.</font>
+			<br><br>
+			<table border='1' style='border-collapse: collapse' cellpadding='0' cellspacing='0'>
+
+			<tr><td ><center><b>RESUMEN HOSPITALIZACIÓN(*)</b> (Evolución, tratamiento y dosis, resumen exámenes)</center></td></tr>
+			
+			<tr><td ><textarea id="resumen" rows="10" style="width: 665px;"></textarea></td></tr>
+			
+			</table>
+
+			<br><br>
+			
+			<table border='1' style='border-collapse: collapse' cellpadding='0' cellspacing='0'>
+
+			<tr><td ><center><b>COMPLICACIONES DURANTE LA HOSPITALIZACIÓN</b> </center></td></tr>
+			
+			<tr><td ><textarea id="complicaciones" rows="10" style="width: 665px;"></textarea></td></tr>
+			
+			</table>
+			
+			<br><br>
+			<!-- START BLOCK : CIRUGIAS -->
+			<table border='1' style='border-collapse: collapse' cellpadding='0' cellspacing='0'><tr><td ><center><b>CIRUGIA(S) Y/O INTERVENCIONES REALIZADA(S)</b></center></td></tr><tr><td ><textarea id='cirugias' rows='10' style='width: 665px;'></textarea></td></tr></table><br><br>
+			<!-- END BLOCK : CIRUGIAS -->
+			<div id='indicaciones_especiales'>
+				<table border='1' style='border-collapse: collapse' cellpadding='0' cellspacing='0'>
+				<tr><td colspan='2'><center><b>INDICACIONES DE ALTA(*)</b></center></td></tr>
+				<tr><td><center><b>Reposo</b></center></td><td><center><b>Regimen</b></center></td></tr>
+				<tr><td><textarea id="reposo" rows="3"  style="width: 330px;"></textarea></td><td><textarea id="regimen" rows="3" style="width: 330px;"></textarea></td></tr>
+
+				<tr><td colspan='2'><center><b>OTRAS INDICACIONES</b></center></td></tr>
+				<tr><td colspan='2'><textarea id="otras_indicaciones" rows="3" style="width: 670px;"></textarea></td></tr>
+
+				</table>
+			</div>
+			<br><br>
+			
+			<table border='1' style='border-collapse: collapse' cellpadding='0' cellspacing='0'>
+
+			<tr><td ><center><b>PROCEDIMIENTOS</b> (ej: puncion pleural, puncion ascitis, artrocentesis, instalación cateter, etc)</center></td></tr>
+			
+			<tr><td ><textarea id="procedimientos" rows="10" style="width: 665px;"></textarea></td></tr>
+			
+			</table>
+			<!-- <b>INDICACIONES(*)</b><textarea id="indicaciones" rows="10" style="width: 100%"></textarea> --><br><br>
+
+
+			<center><b>MEDICAMENTOS ARSENAL</b></center><br>
+			<center><font color='RED'><B>RECUERDE QUE LOS MEDICAMENTOS DEL TIPO PSICOTROPICOS Y ESTUPEFACIENTES SON SOMETIDOS A CONTROL LEGAL, POR LO TANTO DEBE HACER LA RECETA A MANO Y ANEXARLA A LA RECETA ENTREGADA POR LA EPICRISIS<B></font></center>
+			<table>
+			<tr><td colspan='5'><b>Medicamento</b></td></TR>
+			<tr><td colspan='5'><select id='medicamento_arsenal' style='width:690px;' class='editable'>
+			<!-- START BLOCK : MEDICAMENTO -->
+			<option value='{ID_MEDICAMENTO}'>{NOMBRE_MEDICAMENTO}</option>
+			<!-- END BLOCK : MEDICAMENTO -->
+			</select></td></tr></table>
+
+			<table>
+			<TR><td><b>Dosis</b></td><td><input type='text' style='width:500px;' id='dosis_arsenal'></td></tr>
+			<TR><td><b>Frecuencia</b></td><td><input type='text' style='width:500px;' id='frecuencia_arsenal' value='cada '></td></tr>
+			<TR><td><b>Duración Trat</b></td><td><input type='text' style='width:500px;' id='duracion_arsenal' value='por '></td></tr>
+			<TR><td><b>Via Administración</b></td><td><input type='text' style='width:500px;' id='via_arsenal'></td></tr>
+			<tr><td colspan='2'><center><a href='javascript:void(0);'><img onclick='llena_tabla();' src='imagenes/plus_add_green.png' width='25'></center></a></td></tr>
+			</table><br>
+
+
+			<center><b>LISTADO DE MEDICAMENTOS ARSENAL</b></center>
+			<table width='100%' border='1' style='border-collapse: collapse' cellpadding='0' cellspacing='0' id='listado_arsenal'>
+			<tr bgcolor='#CCCCCC'><td style='width:20px;'>ID</td><td style='width:130px;'>Medicamento</td><td style='width:70px;'>Dosis</td><td style='width:100px;'>Frecuencia</td><td style='width:105px;'>Duracion Trat</td><td style='width:130px;'>Via Administración</td><td style='width:30px;'></td></tr>
+			
+			</table><br>
+			<hr width="300">
+			<BR>
+			<center><b>MEDICAMENTOS FUERA DEL ARSENAL</b></center>
+			<table>
+			<tr><td colspan='5'><b>Medicamento</b></td></TR>
+			</TR><td colspan='5'><input type='text' id='medicamento' style='width:680px;' ></td></TR></table>
+
+			<table>
+			<TR><td><b>Dosis</b></td><td><input type='text' style='width:500px;' id='dosis'></td></tr>
+			<td><b>Frecuencia</b></td><td><input type='text' style='width:500px;' id='frecuencia' value='cada '></td></tr>
+			<td><b>Duracion Trat</b></td><td><input type='text' style='width:500px;' id='duracion' value='por '></td></tr>
+			<td><b>Via Administración</b></td><td><input type='text' style='width:500px;' id='via'></td></tr>
+			<tr><td colspan='2'><center><a href='javascript:void(0);'><img onclick='llena_tabla2();' src='imagenes/plus_add_green.png' width='25'></a></center></td></tr>
+			</table><br>
+
+			<center><b>LISTADO DE MEDICAMENTOS FUERA DEL ARSENAL</b></center>
+			<table width='100%' border='1' style='border-collapse: collapse' cellpadding='0' cellspacing='0' id='listado'>
+			<tr bgcolor='#CCCCCC'><td style='width:130px;'>Medicamento</td><td style='width:70px;'>Dosis</td><td style='width:100px;'>Frecuencia</td><td style='width:105px;'>Duracion Trat</td><td style='width:130px;'>Via Administración</td><td style='width:30px;'></td></tr>
+			
+			</table><br>
+			<hr width="300">
+			<BR>
+			<b>CITACIÓN A CONTROL</b><br>
+			<table>
+			<tr><td><b>Lugar:</b></td><td>
+			 <input type='text' id='lugar' style='width:300px;'> 
+			
+			</td></tr>
+			<tr><td><b>Fecha Estimada:</b></td><td><input type='text' id='fecha' style='width:300px;'>(Ej: En dos semanas, 12/12/2013, etc.)</td></tr>
+			</table>
+			<input type='button' value='Agregar' onclick='llena_tabla_citaciones();'>
+			<br>
+			<center><b>LISTADO DE CITACIONES</b></center>
+			<table width='100%' border='1' style='border-collapse: collapse' cellpadding='0' cellspacing='0' id='listado_citaciones'>
+			<tr bgcolor='#CCCCCC'><td><b>Lugar</b></td><td style='width:200px;'><b>Fecha Estimada</b></td><td style='width:60px;'><b>Eliminar</b></td></tr>
+			
+			</table><br>
+			<input type='hidden' value='{ID_PROTOCOLO}' id='id_protocolo'>
+			<br><br>
+			<center><div id='boton_guardar'><a href="javascript:void(0);"><img onclick="guarda_epicrisis();" src="imagenes/btn_guardar1.fw.png"  style='border:0px;'></a></div></center>
+			</div>
+			
+		</div>
+		<div style="clear:both;"><div>
+	</div>
+	<DIV id='footer' "> Copyright © 2013 Unidad de Planificación y Control de Gestión <br> Departamento Gestión de la Demanda e Información <br> Sub Dirección Médica<br> Hospital Clínico Magallanes <br>Anexo: 613048</DIV>
+	
+ </body>
+</html>

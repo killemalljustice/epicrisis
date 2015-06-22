@@ -1,0 +1,785 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+ <head>
+  <link rel="shortcut icon" href="imagenes/ficha.jpg" />
+  <title>Epicrisis</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="Generator" content="EditPlus">
+  <meta name="Author" content="">
+  <meta name="Keywords" content="">
+  <meta name="Description" content="">
+
+<script type="text/javascript" src="js/sh/shCore.js"></script>
+	<script type="text/javascript" src="js/sh/shBrushJScript.js"></script>
+	<link type="text/css" rel="stylesheet" href="js/sh/shCore.css"/>
+	<link type="text/css" rel="stylesheet" href="js/sh/shThemeDefault.css"/>
+
+  <!-- Estilo del tooltip -->
+ <link rel="stylesheet" href="css/general_style.css" type="text/css">
+  <link rel="stylesheet" href="css/estilo.css" type="text/css">
+
+  <link rel="stylesheet" type="text/css" href="jquery-popup/style.css" />
+  <script type="text/javascript" src="jquery-popup/popup.js"></script>
+  <script type="text/javascript" src="js/jquery-1.6.1.js"></script>
+<script type="text/javascript" src="jquery-popup/popup.js"></script>
+<script type="text/javascript" src="js/rut.js"></script>
+<script type="text/javascript" src="js/nuevo_rut.js"></script>
+<link href="css/jquery-ui-1.8.12.custom.css" rel="stylesheet" type="text/css" />
+
+<script type="text/javascript" src="js/jquery.searchabledropdown-1.0.8.min.js"></script>
+
+<script type="text/javascript" src="js/jquery/ui/jquery-ui-1.8.12.custom.js"></script>
+<script language="javascript" src="js/jquery.mousewheel.js"></script>
+<script language="javascript" src="js/jquery.timepickerinputmask.js"></script>
+		
+<script>
+	document.onkeydown = function() {    
+			switch (event.keyCode) { 
+				case 116 : //F5 button
+					event.returnValue = false;
+					event.keyCode = 0;
+					return false; 
+				case 82 : //R button
+					if (event.ctrlKey) { 
+						event.returnValue = false; 
+						event.keyCode = 0;  
+						return false; 
+					} 
+			}
+		}
+	$(function() {
+		//$( "#datepicker" ).datepicker();
+		$('.datepicker').live('click', function(){
+			$(this).datepicker({changeMonth: 'true',changeYear: 'true',showOn:'focus'}).focus();
+		})
+	});
+	$(document).ready(function() {	
+		
+		$('.paginate').live('click', function(){
+			id_cirujano=$("#cirujano_buscar").val();
+			fecha_inicio=$("#fecha_inicio").val();
+			fecha_termino=$("#fecha_termino").val();
+			ficha=$("#ficha_buscar").val();
+			id_servicio=$("#id_servicio").val();
+			var tipo_pag=$('#tipo_pag').val();
+			$('#contenido4').html("<center><img src='imagenes/lightbox-ico-loading.gif'></center>");
+			var page = $(this).attr('data');		
+			
+			$.ajax({
+				type: "POST",
+				url: "paginacion.php",
+				data: "pagina="+page+"&tipo_pag="+tipo_pag+"&id_cirujano="+id_cirujano+"&fecha_inicio="+fecha_inicio+"&fecha_termino="+fecha_termino+"&ficha="+ficha+"&id_servicio="+id_servicio,
+				success: function(data) {
+					$('#contenido4').html(data);
+				}
+			});
+		});              
+	}); 
+	$(document).keydown(function(e){
+
+				if ( e.keyCode == 8 && e.target.tagName != 'INPUT' && e.target.tagName != 'TEXTAREA') {
+					e.preventDefault();
+				}
+			});
+function buscador(){
+	if(!$('#check_cirujano').prop('checked') && !$('#check_fechas').prop('checked') && !$('#check_ficha').prop('checked') && !$('#check_servicio').prop('checked')){
+		alert("Debe seleccionar al menos un criterio de busqueda");
+		return false;
+	}
+	if($('#check_cirujano').prop('checked') && $("#cirujano_buscar").val()==0)
+	{
+		alert("Debe seleccionar un medico");
+		return false;
+	}
+	if($('#check_servicio').prop('checked') && $("#id_servicio").val()==0)
+	{
+		alert("Debe seleccionar un servicio");
+		return false;
+	}
+	if($('#check_ficha').prop('checked') && $.trim($("#ficha_buscar").val()).length == 0){
+		alert("Debe ingresar el RUT o DNI");
+		return false;
+	}
+	if($('#check_cirujano').prop('checked') && !$('#check_fechas').prop('checked') && !$('#check_servicio').prop('checked') ){
+		$('#contenido4').html("<center><img src='imagenes/lightbox-ico-loading.gif'></center>");
+		id_cirujano=$("#cirujano_buscar").val();
+		var tipo_pag=2;
+		var page = 1;		
+		$.ajax({
+			type: "POST",
+			url: "paginacion.php",
+			data: "pagina="+page+"&tipo_pag="+tipo_pag+"&id_cirujano="+id_cirujano,
+			success: function(data) {
+				$('#contenido4').html(data);
+			}
+		});
+	}
+	if(!$('#check_servicio').prop('checked') && !$('#check_cirujano').prop('checked') && $('#check_fechas').prop('checked') ){
+		$('#contenido4').html("<center><img src='imagenes/lightbox-ico-loading.gif'></center>");
+		fecha_inicio=$("#fecha_inicio").val();
+		fecha_termino=$("#fecha_termino").val();
+		var tipo_pag=3;
+		var page = 1;		
+		$.ajax({
+			type: "POST",
+			url: "paginacion.php",
+			data: "pagina="+page+"&tipo_pag="+tipo_pag+"&fecha_inicio="+fecha_inicio+"&fecha_termino="+fecha_termino,
+			success: function(data) {
+				$('#contenido4').html(data);
+			}
+		});
+		$.ajax({
+			type: "POST",
+			url: "busca_historico_cr_infantil_fechas.php",
+			data: "fecha_inicio="+fecha_inicio+"&fecha_termino="+fecha_termino,
+			success: function(datos){
+				$('#historico_cr_infantil').html(datos);
+			}
+		});
+	}
+	if($('#check_cirujano').prop('checked') && $('#check_fechas').prop('checked') && !$('#check_servicio').prop('checked') ){
+		$('#contenido4').html("<center><img src='imagenes/lightbox-ico-loading.gif'></center>");
+		fecha_inicio=$("#fecha_inicio").val();
+		fecha_termino=$("#fecha_termino").val();
+		id_cirujano=$("#cirujano_buscar").val();
+		var tipo_pag=4;
+		var page = 1;		
+		$.ajax({
+			type: "POST",
+			url: "paginacion.php",
+			data: "pagina="+page+"&tipo_pag="+tipo_pag+"&fecha_inicio="+fecha_inicio+"&fecha_termino="+fecha_termino+"&id_cirujano="+id_cirujano,
+			success: function(data) {
+				$('#contenido4').html(data);
+			}
+		});
+	}
+	if($('#check_ficha').prop('checked')){
+		$('#contenido4').html("<center><img src='imagenes/lightbox-ico-loading.gif'></center>");
+		var tipo_pag=5;
+		var page = 1;
+		ficha=$("#ficha_buscar").val();
+		$.ajax({
+				type: "POST",
+				url: "paginacion.php",
+				data: "pagina="+page+"&tipo_pag="+tipo_pag+"&ficha="+ficha,
+				success: function(data) {
+					$('#contenido4').html(data);
+				}
+		});
+		rut=$("#ficha_buscar").val();
+		$.ajax({
+			type: "POST",
+			url: "busca_historico_cr_infantil.php",
+			data: "rut="+rut,
+			success: function(datos){
+				$('#historico_cr_infantil').html(datos);
+			}
+		});
+	}
+	if($('#check_fechas').prop('checked') && $('#check_servicio').prop('checked') && !$('#check_cirujano').prop('checked') ){
+		$('#contenido4').html("<center><img src='imagenes/lightbox-ico-loading.gif'></center>");
+		fecha_inicio=$("#fecha_inicio").val();
+		fecha_termino=$("#fecha_termino").val();
+		id_servicio=$("#id_servicio").val();
+		var tipo_pag=6;
+		var page = 1;		
+		$.ajax({
+			type: "POST",
+			url: "paginacion.php",
+			data: "pagina="+page+"&tipo_pag="+tipo_pag+"&fecha_inicio="+fecha_inicio+"&fecha_termino="+fecha_termino+"&id_servicio="+id_servicio,
+			success: function(data) {
+				$('#contenido4').html(data);
+			}
+		});
+	}
+	if($('#check_cirujano').prop('checked') && !$('#check_fechas').prop('checked') && $('#check_servicio').prop('checked') ){
+		$('#contenido4').html("<center><img src='imagenes/lightbox-ico-loading.gif'></center>");
+		id_cirujano=$("#cirujano_buscar").val();
+		id_servicio=$("#id_servicio").val();
+		var tipo_pag=7;
+		var page = 1;		
+		$.ajax({
+			type: "POST",
+			url: "paginacion.php",
+			data: "pagina="+page+"&tipo_pag="+tipo_pag+"&id_cirujano="+id_cirujano+"&id_servicio="+id_servicio,
+			success: function(data) {
+				$('#contenido4').html(data);
+			}
+		});
+	}
+	if($('#check_cirujano').prop('checked') && $('#check_fechas').prop('checked') && $('#check_servicio').prop('checked') ){
+		$('#contenido4').html("<center><img src='imagenes/lightbox-ico-loading.gif'></center>");
+		fecha_inicio=$("#fecha_inicio").val();
+		fecha_termino=$("#fecha_termino").val();
+		id_cirujano=$("#cirujano_buscar").val();
+		id_servicio=$("#id_servicio").val();
+		var tipo_pag=8;
+		var page = 1;		
+		$.ajax({
+			type: "POST",
+			url: "paginacion.php",
+			data: "pagina="+page+"&tipo_pag="+tipo_pag+"&id_cirujano="+id_cirujano+"&id_servicio="+id_servicio+"&fecha_inicio="+fecha_inicio+"&fecha_termino="+fecha_termino,
+			success: function(data) {
+				$('#contenido4').html(data);
+			}
+		});
+	}
+	if(!$('#check_cirujano').prop('checked') && !$('#check_fechas').prop('checked') && $('#check_servicio').prop('checked') ){
+		$('#contenido4').html("<center><img src='imagenes/lightbox-ico-loading.gif'></center>");
+		id_servicio=$("#id_servicio").val();
+		var tipo_pag=9;
+		var page = 1;		
+		$.ajax({
+			type: "POST",
+			url: "paginacion.php",
+			data: "pagina="+page+"&tipo_pag="+tipo_pag+"&id_servicio="+id_servicio,
+			success: function(data) {
+				$('#contenido4').html(data);
+			}
+		});
+	}
+}
+function descheckea(){
+	if($('#check_ficha').prop('checked')){
+		$('#check_cirujano').prop('checked', false);
+		$('#check_fechas').prop('checked', false);
+	}
+}
+function descheckea2(){
+	if($('#check_cirujano').prop('checked') || $('#check_fechas').prop('checked') || $('#check_servicio').prop('checked')){
+		$('#check_ficha').prop('checked', false);
+	}
+}
+function carga_editar(id_epicrisis){
+	$('#contenido4').html("<center><img src='imagenes/lightbox-ico-loading.gif'></center>");
+	$.ajax({
+			type: "POST",
+			url: "editar_epicrisis.php",
+			data: "id_epicrisis="+id_epicrisis,
+			success: function(datos){
+				$('#contenido4').html(datos);
+				
+			}
+	});
+}
+function Delete(){
+    var par = $(this).parent().parent().parent(); //tr
+    par.remove();
+}
+function llena_tabla(){
+	id_medicamento=$('#medicamento_arsenal').val();
+	medicamento=$("#medicamento_arsenal option:selected").text();
+	dosis=$('#dosis_arsenal').val();
+	frecuencia=$('#frecuencia_arsenal').val();
+	duracion=$('#duracion_arsenal').val();
+	via=$('#via_arsenal').val();
+	if($.trim($("#medicamento_arsenal").val()).length == 0){
+		alert("Debe ingresar el nombre del medicamento!");
+		return false;
+	}else if($.trim($("#dosis_arsenal").val()).length == 0){
+		alert("Debe ingresar la dosis del medicamento!");
+		return false;
+	}else if($.trim($("#frecuencia_arsenal").val()) == 'cada'){
+		alert("Debe ingresar la frecuencia del medicamento!");
+		return false;
+	}else if($.trim($("#duracion_arsenal").val()) == 'por'){
+		alert("Debe ingresar la duracion del tratamiento!");
+		return false;
+	}else if($.trim($("#via_arsenal").val()).length == 0){
+		alert("Debe ingresar la via de administración!");
+		return false;
+	}else if($("#medicamento_arsenal").val() == 0){
+		alert("Debe seleccionar un medicamento!");
+		return false;
+	}
+	$('#listado_arsenal').append('<tr><td>'+id_medicamento+'</td><td>'+medicamento+'</td><td>'+dosis+'</td><td>'+frecuencia+'</td><td>'+duracion+'</td><td>'+via+'</td><td><center><img class="btnDelete" src="imagenes/Button-Delete-icon.png" width="20"></center></td></tr>');
+	$(".btnDelete").bind("click", Delete);
+	$('#medicamento_arsenal').val('');
+	$('#dosis_arsenal').val('');
+	$('#frecuencia_arsenal').val('cada ');
+	$('#duracion_arsenal').val('por ');
+	$('#via_arsenal').val('');
+}
+/*function descarga(ruta){
+	window.open ("http://10.6.180.153/epicrisis_test/"+ruta,"mywindow");
+	//alert(ruta);
+}*/
+function llena_tabla2(){
+	medicamento=$('#medicamento').val();
+	dosis=$('#dosis').val();
+	frecuencia=$('#frecuencia').val();
+	duracion=$('#duracion').val();
+	via=$('#via').val();
+	if($.trim($("#medicamento").val()).length == 0){
+		alert("Debe ingresar el nombre del medicamento!");
+		return false;
+	}else if($.trim($("#dosis").val()).length == 0){
+		alert("Debe ingresar la dosis del medicamento!");
+		return false;
+	}else if($.trim($("#frecuencia").val()) == 'cada'){
+		alert("Debe ingresar la frecuencia del medicamento!");
+		return false;
+	}else if($.trim($("#duracion").val()) == 'por'){
+		alert("Debe ingresar la duracion del tratamiento!");
+		return false;
+	}else if($.trim($("#via").val()).length == 0){
+		alert("Debe ingresar la via de administración!");
+		return false;
+	}
+	$('#listado').append('<tr><td>'+medicamento+'</td><td>'+dosis+'</td><td>'+frecuencia+'</td><td>'+duracion+'</td><td>'+via+'</td><td><center><img class="btnDelete" src="imagenes/Button-Delete-icon.png" width="20"></center></td></tr>');
+	$(".btnDelete").bind("click", Delete);
+	$('#medicamento').val('');
+	$('#dosis').val('');
+	$('#frecuencia').val('cada ');
+	$('#duracion').val('por ');
+	$('#via').val('');
+}
+function actualiza_epicrisis(){
+	if($.trim($("#nombre").val()).length == 0){
+		alert("Debe ingresar el nombre del paciente!");
+		return false;
+	}else if($.trim($("#ficha").val()).length == 0 && $('#tipo_habitacion').val()!=9){
+		alert("Debe ingresar el numero de ficha!");
+		return false;
+	}else if($.trim($("#rut").val()).length == 0 && $('#tipo_habitacion').val()!=9){
+		alert("Debe ingresar el rut o dni del paciente!");
+		return false;
+	}else if($("#tipo_habitacion").val()== '0'){
+		alert("Debe seleccionar una ubicación!");
+		return false;
+	}else if($("#habitacion").val()== '0'){
+		alert("Debe seleccionar una habitación!");
+		return false;
+	}else if($("#ambito").val()== '0'){
+		alert("Debe seleccionar un ambito!");
+		return false;
+	}else if($.trim($("#edad").val()).length == 0){
+		alert("Debe ingresar la edad del paciente!");
+		return false;
+	}else if($.trim($("#egreso").val()).length == 0){
+		alert("Debe ingresar el diagnostico de egreso!");
+		return false;
+	}else if($.trim($("#resumen").val()).length == 0){
+		alert("Debe ingresar el resumen de hospitalización!");
+		return false;
+	}else if($.trim($("#reposo").val()).length == 0 && $('#tipo_habitacion').val()!=8){
+		if( $('#tipo_habitacion').val()==9){
+			alert("Debe ingresar las indicaciones de alta!");
+		}else{
+			alert("Debe ingresar las indicaciones de reposo!");
+		}
+		return false;
+	}else if($.trim($("#regimen").val()).length == 0 && $('#tipo_habitacion').val()!=8 && $('#tipo_habitacion').val()!=9){
+		alert("Debe ingresar las indicaciones de regimen!");
+		return false;
+	}
+
+	if($('#tipo_habitacion').val()==8 && $.trim($("#reposo_ped").val()).length == 0){
+		alert("Debe ingresar las indicaciones de reposo!");
+		return false;
+	}
+
+	if($('#tipo_habitacion').val()==8 && $.trim($("#regimen_ped").val()).length == 0){
+		alert("Debe ingresar las indicaciones de regimen!");
+		return false;
+	}
+
+	 i=0;
+	 medicamentos_arsenal="";
+	$('#listado_arsenal tr').each(function(){
+		if(i>0){
+			j=1;
+			$(this).find('td').each(function(){
+					if(j!=2 && j!=7){
+						texto_actual=$(this).text();
+						medicamentos_arsenal+="&med_ars"+i+j+"="+texto_actual;
+					}
+				j++;
+			})
+		}
+		i++;
+	})
+	nro_medicamentos_arsenal=i-1;
+	
+	i=0;
+	medicamentos="";
+	$('#listado tr').each(function(){
+		if(i>0){
+			j=1;
+			$(this).find('td').each(function(){
+					if(j!=6){
+						texto_actual=$(this).text();
+						medicamentos+="&med"+i+j+"="+texto_actual;
+					}
+				j++;
+			})
+		}
+		i++;
+	})
+	nro_medicamentos=i-1;
+
+	
+	//alert(medicamentos_arsenal);
+	i=0;
+	citaciones="";
+	$('#listado_citaciones tr').each(function(){
+		if(i>0){
+			j=1;
+			$(this).find('td').each(function(){
+					if(j!=3){
+						texto_actual=$(this).text();
+						citaciones+="&cit"+i+j+"="+texto_actual;
+					}
+				j++;
+			})
+		}
+		i++;
+	})
+	nro_citaciones=i-1;
+
+	if(i==1 && $('#tipo_habitacion').val()!=8 && $('#tipo_habitacion').val()!=9){
+		alert("Debe ingresar a lo menos una citación!");
+		return false;
+	}
+
+	$('#boton_guardar').html("<img src='imagenes/lightbox-ico-loading.gif'>");
+	id_epicrisis=$('#id_epicrisis').val();
+	rut=$('#rut').val();
+	nombre_paciente=$('#nombre').val();
+	ficha=$('#ficha').val();
+	tipo_habitacion=$('#tipo_habitacion').val();
+	if(tipo_habitacion=='7'){
+		habitacion='124';
+		cirugias='';
+	}else{
+		habitacion=$('#habitacion').val();
+		cirugias=$('#cirugias').val();
+	}
+	ambito=$('#ambito').val();
+	fecha_ingreso=$('#fecha_ingreso').val();
+	fecha_egreso=$('#fecha_egreso').val();
+	id_cirujano=$('#id_cirujano').val();
+	egreso=encodeURIComponent($('#egreso').val());
+	egreso2=encodeURIComponent($('#egreso2').val());
+	resumen=encodeURIComponent($('#resumen').val());
+
+	complicaciones=encodeURIComponent($('#complicaciones').val());
+	procedimientos=encodeURIComponent($('#procedimientos').val());
+
+	//indicaciones=$('#indicaciones').val();
+	regimen=encodeURIComponent($('#regimen').val());
+	//alert(regimen);
+	reposo=encodeURIComponent($('#reposo').val());
+	//alert(reposo);
+	otras_indicaciones=encodeURIComponent($('#otras_indicaciones').val());
+	//alert(otras_indicaciones);
+	//lugar=$('#lugar').val();
+	//fecha=$('#fecha').val();
+	edad=$('#edad').val();
+	tipo_edad=$('#tipo_edad').val();
+	rut_medico=$('#rut_medico').val();
+	if(tipo_habitacion=='8'){
+		peso_ingreso=$('#peso_ingreso').val();
+		peso_egreso=$('#peso_egreso').val();
+		dias_estadia=$('#dias_estadia').val();
+		estadia_uci=$('#estadia_uci').val();
+		sexo=$('#sexo').val();
+		regimen='';
+		regimen_ped=encodeURIComponent($('#regimen_ped').val());
+		reposo_ped=encodeURIComponent($('#reposo_ped').val());
+	}else{
+		peso_ingreso='';
+		peso_egreso='';
+		dias_estadia='';
+		estadia_uci='';
+		sexo='0';
+		regimen_ped='';
+		reposo_ped='';
+	}
+	if(tipo_habitacion=='9'){
+		nombre_padre=$('#nombre_padre').val();
+		escol_padre=$('#escol_padre').val();
+		nombre_madre=$('#nombre_madre').val();
+		escol_madre=$('#escol_madre').val();
+		direccion=$('#direccion').val();
+		fono=$('#fono').val();
+		parto=$('#parto').val();
+		apgar=$('#apgar').val();
+		gr_mat=encodeURIComponent($('#gr_mat').val());
+		gr_rn=encodeURIComponent($('#gr_rn').val());
+		fecha_bgc=$('#fecha_bgc').val();
+		fecha_pku=$('#fecha_pku').val();
+		fecha_nac=$('#fecha_nac').val();
+		peso_nac=$('#peso_nac').val();
+		peso_alta=$('#peso_alta').val();
+		dias_estadia_neo=$('#dias_estadia_neo').val();
+		dif_peso=$('#dif_peso').val();
+		regimen='';
+	}else{
+		nombre_padre='';
+		escol_padre='';
+		nombre_madre='';
+		escol_madre='';
+		direccion='';
+		fono='';
+		parto='';
+		apgar='';
+		gr_mat='';
+		gr_rn='';
+		fecha_bgc='';
+		fecha_pku='';
+		fecha_nac='';
+		peso_nac='';
+		peso_alta='';
+		dias_estadia_neo='';
+		dif_peso='';
+	}
+	if(tipo_habitacion!='8' &&tipo_habitacion!='9'){
+		regimen=$('#regimen').val();
+	}
+	$.ajax({
+			type: "POST",
+			url: "actualiza_epicrisis.php",
+			data: "rut="+rut+"&nombre_paciente="+nombre_paciente+"&ficha="+ficha+"&tipo_habitacion="+tipo_habitacion+"&habitacion="+habitacion+"&ambito="+ambito+"&fecha_ingreso="+fecha_ingreso+"&fecha_egreso="+fecha_egreso+"&id_cirujano="+id_cirujano+"&egreso="+egreso+"&resumen="+resumen+"&regimen="+regimen+"&reposo="+reposo+"&regimen_ped="+regimen_ped+"&reposo_ped="+reposo_ped+"&otras_indicaciones="+otras_indicaciones+"&id_epicrisis="+id_epicrisis+"&medicamentos_arsenal="+medicamentos_arsenal+"&medicamentos="+medicamentos+"&nro_medicamentos_arsenal="+nro_medicamentos_arsenal+"&nro_medicamentos="+nro_medicamentos+"&edad="+edad+"&tipo_edad="+tipo_edad+"&rut_medico="+rut_medico+"&egreso2="+egreso2+"&cirugias="+cirugias+"&citaciones="+citaciones+"&nro_citaciones="+nro_citaciones+"&peso_ingreso="+peso_ingreso+"&peso_egreso="+peso_egreso+"&dias_estadia="+dias_estadia+"&estadia_uci="+estadia_uci+"&sexo="+sexo+"&nombre_padre="+nombre_padre+"&escol_padre="+escol_padre+"&nombre_madre="+nombre_madre+"&escol_madre="+escol_madre+"&direccion="+direccion+"&fono="+fono+"&parto="+parto+"&apgar="+apgar+"&gr_mat="+gr_mat+"&gr_rn="+gr_rn+"&fecha_bgc="+fecha_bgc+"&fecha_pku="+fecha_pku+"&fecha_nac="+fecha_nac+"&peso_alta="+peso_alta+"&dias_estadia_neo="+dias_estadia_neo+"&dif_peso="+dif_peso+"&peso_nac="+peso_nac+"&complicaciones="+complicaciones+"&procedimientos="+procedimientos,
+			success: function(datos){
+				//alert(datos);
+				window.location.href = "buscar.php";
+			}
+		});
+}
+function formato_rut_medico(rut){
+	rut2=$('#rut_medico').val();
+	if(rut.value.length==8)
+		rut.value='0'+rut.value;
+	
+
+	existe=1;
+	if(rut2.indexOf('-') === -1)
+		existe=0;
+	if (existe==0)
+	{
+		var sRut1 = rut.value;      //contador de para saber cuando insertar el . o la -
+		var nPos = 0; //Guarda el rut invertido con los puntos y el guión agregado
+		var sInvertido = ""; //Guarda el resultado final del rut como debe ser
+		var sRut = "";
+		for(var i = sRut1.length - 1; i >= 0; i-- )
+		{
+			sInvertido += sRut1.charAt(i);
+			if (i == sRut1.length - 1 )
+				sInvertido += "-";
+			else if (nPos == 3)
+			{
+				sInvertido += ".";
+				nPos = 0;
+			}
+			nPos++;
+		}
+		for(var j = sInvertido.length - 1; j >= 0; j-- )
+		{
+			if (sInvertido.charAt(sInvertido.length - 1) != ".")
+				sRut += sInvertido.charAt(j);
+			else if (j != sInvertido.length - 1 )
+				sRut += sInvertido.charAt(j);
+		}
+		//rut.value = sRut.toUpperCase();
+		var rut_completo=sRut.toString();
+		sin_puntos=rut_completo.replace(/[.]/g,'');
+		
+		sin_cero = sin_puntos
+
+		while(sin_cero.charAt(0) === '0')
+			sin_cero = sin_cero.substr(1);
+
+		rut.value = sin_cero
+	}  
+}
+function carga_habitaciones(){
+	tipo_habitacion=$('#tipo_habitacion').val();
+	if(tipo_habitacion!=7){
+		$('#habitaciones').html("<center><img src='imagenes/lightbox-ico-loading.gif'></center>");
+		$.ajax({
+				type: "POST",
+				url: "busca_habitaciones.php",
+				data: "tipo_habitacion="+tipo_habitacion,
+				success: function(datos){
+					$('#habitaciones').html(datos);
+				}
+			});
+	}else{
+		$('#habitaciones').html("");
+	}
+}
+function llena_tabla_citaciones(){
+	lugar=$('#lugar').val();
+	fecha=$('#fecha').val();
+	if($.trim($("#lugar").val()).length == 0){
+		alert("Debe ingresar el lugar de la citación!");
+		return false;
+	}else if($.trim($("#fecha").val()).length == 0){
+		alert("Debe ingresar la fecha estimada de la citación!");
+		return false;
+	}
+	$('#listado_citaciones').append('<tr><td>'+lugar+'</td><td>'+fecha+'</td><td><center><img class="btnDelete" src="imagenes/Button-Delete-icon.png" width="20"></center></td></tr>');
+	$(".btnDelete").bind("click", Delete);
+	$('#lugar').val('');
+	$('#fecha').val('');
+}
+function calcula_dif(){
+	peso_nac=$('#peso_nac').val();
+	peso_alta=$('#peso_alta').val();
+	$('#dif_peso').val(peso_alta-peso_nac);
+	//alert(peso_nac+" "+peso_alta);
+}
+function calcula_dif_fechas(){
+	fecha_ingreso=$('#fecha_ingreso').val();
+	fecha_ing=fecha_ingreso.split("/");
+	fecha_egreso=$('#fecha_egreso').val();
+	fecha_egr=fecha_egreso.split("/");
+
+	var dat1 = new Date(fecha_ing[2], parseFloat(fecha_ing[1])-1, parseFloat(fecha_ing[0]));
+	var dat2 = new Date(fecha_egr[2], parseFloat(fecha_egr[1])-1, parseFloat(fecha_egr[0]));
+ 
+	var fin = dat2.getTime() - dat1.getTime();
+	var dias = Math.floor(fin / (1000 * 60 * 60 * 24))  
+
+	if(dias==0)
+		dias=1;
+	$('#dias_estadia_neo').val(dias);
+	$('#dias_estadia').val(dias);
+	//alert( dias);
+
+	//alert(difDias(fecha_ing[0],fecha_ing[1],fecha_ing[2],fecha_egr[0],fecha_egr[1],fecha_egr[2]));
+}
+function mensaje(){
+	alert("A partir de ahora para realizar una busqueda el formato del RUT debe ser SIN puntos, SIN cero inicial y con guion \n Ejemplo: 6010178-9");
+}
+</script>
+<script src="js/jquery/ui/i18n/jquery.ui.datepicker-es.js"></script>
+<script type="text/javascript" src="js/jquery/ui/jquery.ui.datepicker.js"></script>
+
+
+ </head>
+
+ <body id='principal' >
+ <div id="wrapper" >
+<div id="overlay" class="overlay" style="display:none;"></div>
+<div id="boxpopup" class="box">
+	<a onclick="closeOffersDialog('boxpopup');" class="boxclose"></a>
+	<div id="contenido3">
+	
+	</div>
+</div>
+</div>
+	<img id='banner' src="imagenes/banner_nuevo.png">
+	<div id="contenido2">
+		<div id="main">
+			<div id="logeo-left3">
+					<!-- <img src='imagenes/btn_home1.fw.png' onmouseover="this.src = 'imagenes/btn_home2.fw.png' " onmouseout="this.src = 'imagenes/btn_home1.fw.png'" style='border:0px;'>
+				<img src='imagenes/btn_perfil1.fw.png' onmouseover="this.src = 'imagenes/btn_perfil2.fw.png' " onmouseout="this.src = 'imagenes/btn_perfil1.fw.png'" style='border:0px;'> -->
+				
+				<a href='main.php' class="tip2"><img src='imagenes/btn_nuevo1.fw.png' onmouseover="this.src = 'imagenes/btn_nuevo2.fw.png' " onmouseout="this.src = 'imagenes/btn_nuevo1.fw.png'" style='border:0px;'><span>Nueva Epicrisis</span></a>
+				
+				<a href='buscar.php' class="tip2"><img src='imagenes/btn_buscar1.fw.png' onmouseover="this.src = 'imagenes/btn_buscar2.fw.png' " onmouseout="this.src = 'imagenes/btn_buscar1.fw.png'" style='border:0px;'><span>Buscador (Editar/Imprimir)</span></a>
+				<!-- <a href='descarga.php' class="tip2"><img src='imagenes/btn_ayuda1.fw.png' onmouseover="this.src = 'imagenes/btn_ayuda2.fw.png' " onmouseout="this.src = 'imagenes/btn_ayuda1.fw.png'" style='border:0px;'><span>Manual de Procedimiento (Ayuda)</span></a> -->
+				<!-- <img src='imagenes/btn_reporte1.fw.png' onmouseover="this.src = 'imagenes/btn_reporte2.fw.png' " onmouseout="this.src = 'imagenes/btn_reporte1.fw.png'" style='border:0px;'> -->
+				<a href='salir.php' class="tip2"><img src='imagenes/btn_cerrar1.fw.png' onmouseover="this.src = 'imagenes/btn_cerrar2.fw.png' " onmouseout="this.src = 'imagenes/btn_cerrar1.fw.png'" style='border:0px;'><span>Cerrar Sesión</span></a>
+				
+
+			</div>	
+			<div id="main3">
+			<CENTER><H2>BUSCADOR</H2></CENTER>
+			<table>
+			<tr>
+			<td><input type='checkbox' id='check_cirujano' onclick='descheckea2();'></td><td><b>Medico</b></td><td><select id='cirujano_buscar'><option value='0'>--Seleccione--</option>
+			<!-- START BLOCK : CIRUJANO -->
+			<option value='{ID_CIRUJANO}'>{NOMBRE_CIRUJANO}</option>
+			<!-- END BLOCK : CIRUJANO -->
+			</select></td>
+			</tr>
+			<tr>
+			<td><input type='checkbox' CHECKED id='check_fechas' onclick='descheckea2();'></td><td><b>Fechas</b></td><td><input type='text' id='fecha_inicio' style='width:70px;' class='datepicker' value='{FEC_INICIO}' READONLY>(Inicio) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type='text' id='fecha_termino' style='width:70px;' class='datepicker' value='{FEC_TERMINO}' READONLY> (Fin)</td>
+			</tr>
+			<tr>
+			<td><input type='checkbox' id='check_servicio' onclick='descheckea2();'></td>
+			<td><b>Servicio</b></td>
+			<td>
+			<select id='id_servicio'> 
+			<option value='0'>--Seleccione--</option>
+			<!-- START BLOCK : SERVICIO -->
+			<option value='{ID_SERVICIO}' >{NOMBRE_SERVICIO}</option>
+			<!-- END BLOCK : SERVICIO -->
+			</select>
+			</td>
+			</tr>
+			<tr>
+			<td><input type='checkbox' id='check_ficha' onclick='descheckea();'></td><td><b>RUT o DNI</b></td><td><input type='text' id='ficha_buscar' style='width:100px;'> (El RUT debe ingresarlo <FONT color='red'>SIN</FONT> puntos, <FONT color='red'>SIN</FONT> cero inicial y con guión)</td>
+			</tr>
+			</table>
+			<center><input type='button' value='Buscar' onclick='buscador();'></center>
+			<br>
+			<div id='contenido4'>
+			
+			
+			<!-- START BLOCK : TITULO -->
+			<CENTER>{NUMERO_RESULTADOS} con fecha de egreso <b>{FECHA_ACTUAL2}</b></CENTER> <a href='crea_excel.php?tipo_desc=1&fecha_actual={FECHA_ACTUAL}' target="_blank" style='align:right;'>Descargar Resultados</a>
+			<table width='100%' border='1' style='border-collapse: collapse' cellpadding='0' cellspacing='0' >
+			<tr bgcolor='#CCCCCC'>
+			<td align=center style='width:80px;'><font style='font-size:8pt;' face='Verdana, Arial, Helvetica, sans-serif' color=#000000><b>RUT o DNI</b></font></strong></td>
+			<td align=center><font style='font-size:8pt;' face='Verdana, Arial, Helvetica, sans-serif' color=#000000><b>Paciente</b></font></strong></td>
+			<td align=center><font style='font-size:8pt;' face='Verdana, Arial, Helvetica, sans-serif' color=#000000><b>Medico</b></font></strong></td>
+			<td align=center style='width:70px;'><font style='font-size:8pt;' face='Verdana, Arial, Helvetica, sans-serif' color=#000000><b>Fecha Egre</b></font></strong></td>
+			<td align=center style='width:50px;'><font style='font-size:8pt;' face='Verdana, Arial, Helvetica, sans-serif' color=#000000><b>Editar</b></font></strong></td>
+			<td align=center style='width:50px;'><font style='font-size:8pt;' face='Verdana, Arial, Helvetica, sans-serif' color=#000000><b>Impr</b></font></strong></td>
+			<td align=center><font style='font-size:8pt;' face='Verdana, Arial, Helvetica, sans-serif' color=#000000><b>Prot</b></font></strong></td>
+			</tr>
+			<!-- END BLOCK : TITULO -->
+			<!-- START BLOCK : MENSAJE -->
+			<center><b>No existen epicrisis ingresadas en el dia actual</b></center>
+			<!-- END BLOCK : MENSAJE -->
+			
+
+			<!-- START BLOCK : FILAS -->
+			<tr style='font-size:10pt;'><td>{RUT}</td><td>{PACIENTE}</td><td>{CIRUJANO}</td><td>{FECHA_EGRE}</td><td>{EDITAR}</td><td><center><a href='crea_pdf_epicrisis.php?id_epicrisis={ID_EPICRISIS}' target="_blank"><img src='imagenes/imprimir.png' width='20'  style='border:0px;'></a></center></td><td><center>{PROTOCOLOS}</center></td></tr>
+			<!-- END BLOCK : FILAS -->
+			
+		
+
+			<!-- START BLOCK : PAGINACION -->
+			<div class="pagination"><ul>
+				<input type='hidden' id='tipo_pag' value='{VALOR_TIPO}'>
+				<!-- START BLOCK : ANTERIOR -->
+				<li><a class="paginate" data="{NUMERO}">Anterior</a></li>
+				<!-- END BLOCK : ANTERIOR -->
+
+				<!-- START BLOCK : SINENLACE -->
+				<li class="active"><a>{NUMERO2}</a></li>
+				<!-- END BLOCK : SINENLACE -->
+					
+				<!-- START BLOCK : CONENLACE -->
+				<li><a class="paginate" data="{NUMERO3}">{NUMERO3}</a></li>
+				<!-- END BLOCK : CONENLACE -->
+				
+				<!-- START BLOCK : SIGUIENTE -->
+				<li><a class="paginate" data="{NUMERO4}">Siguiente</a></li>
+				<!-- END BLOCK : SIGUIENTE -->
+			
+			</ul></div>
+			
+			<!-- END BLOCK : PAGINACION -->
+			
+			</table>
+			
+			</div>
+			
+			<div id='historico_cr_infantil'> </div>
+			
+			</div>
+
+			
+
+		</div>
+		<div style="clear:both;"><div>
+	</div>
+	<DIV id='footer' "> Copyright © 2013 Unidad de Planificación y Control de Gestión <br> Departamento Gestión de la Demanda e Información <br> Sub Dirección Médica<br> Hospital Clínico Magallanes <br>Anexo: 613048</DIV>
+ </body>
+</html>

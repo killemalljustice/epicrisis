@@ -1,0 +1,75 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+ <head>
+ <link rel="shortcut icon" href="imagenes/ficha.jpg" />
+
+  <title>Epicrisis</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="Generator" content="EditPlus">
+  <meta name="Author" content="">
+  <meta name="Keywords" content="">
+  <meta name="Description" content="">
+  <link rel="stylesheet" href="css/estilo.css" type="text/css">
+  <script type="text/javascript" src="js/jquery-1.6.1.js"></script>
+  <script type="text/javascript">
+
+  function verifica_login(){
+	user=$('#user').val();
+	pass=$('#pass').val();
+	$('#mensaje').html("<center><img src='imagenes/lightbox-ico-loading.gif'></center>");
+	$.ajax({
+		type: "POST",
+		url: "verifica_login.php",
+		data: "user="+user+"&pass="+pass,
+		success: function(datos){
+			if(datos =='si')
+			window.location.href = "main.php";
+			else
+				$('#mensaje').html("<center><font color='red'>Nombre de usuario o password incorrecto!!</font></center>");
+		}
+	});
+  }
+  </script>
+ </head>
+
+ <body>
+	<img id='banner' src="imagenes/banner_nuevo.png">
+	<div id="contenido">
+		<div id="logeo">
+			<div id="logeo-left">
+			</div>
+			<table id='datos'>
+				<tr>
+					<td><b>Usuario:</b></td><td><input type='text' id='user'></td>
+				</tr>
+				<tr>
+					<td></td><td></td>
+				</tr>
+				<tr>
+					<td></td><td></td>
+				</tr>
+				<tr>
+					<td><b>Password:</b></td><td><input type='password' id='pass' onkeydown="if (event.keyCode == 13) document.getElementById('boton').click()"></td>
+				</tr>
+				<tr>
+					<td></td><td></td>
+				</tr>
+				<tr>
+					<td></td><td></td>
+				</tr>
+				<tr>
+					<td></td><td></td>
+				</tr>
+				<tr>
+					<td></td><td></td>
+				</tr>
+			</table>
+			
+			<center><a href="javascript:void(0);"><img onclick="verifica_login();" src="imagenes/btn_ingresar1.png" style='border:0px;' id='boton'></a></center>	
+			<div id='mensaje'></div>
+		</div>
+		
+	</div>
+	<DIV id='footer2' "> Copyright © 2013 Unidad de Planificación y Control de Gestión <br> Departamento Gestión de la Demanda e Información <br> Sub Dirección Médica<br> Hospital Clínico Magallanes <br>Anexo: 613048</DIV>
+ </body>
+</html>

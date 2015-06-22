@@ -1,0 +1,8 @@
+menu superior: #262037
+menu inferior: #262037
+
+bordes objetos (input, checkbox, etc): #999999
+font-color: #999999 ó #BBBBBB
+
+background (1): #DDDDDD
+background (2): #C8C8C8
